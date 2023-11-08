@@ -13,23 +13,23 @@ class HTTPRequest:
 	def __init__(self, scheme: str = "https", url: str = None, raw: str = None, file: str = None):
 		"""
 		Args:
-			scheme (str): The scheme of the request (e.g. "http", "https")
-			url (str): The URL of the request (e.g. "https://example.com/path?query#fragment")
-			raw (str): The raw HTTP request
-			file (str): The path to a file containing the raw HTTP request
+			scheme (str, optional): The scheme of the request (e.g. "http", "https")
+			url (str, optional): The URL of the request (e.g. "https://example.com/path?query#fragment")
+			raw (str, optional): The raw HTTP request
+			file (str, optional): The path to a file containing the raw HTTP request
 
 		Note:
-			One of `url`, `raw`, or `file` must be provided. The other arguments will be ignored.
+			Can provide one of `url`, `raw`, or `file`. The other arguments will be ignored.
 			If `raw` or `file` is provided, it must follow the HTTP request spec and contain a Host header.
 		"""
-		self.method = "GET"
-		self.path: str = ""
-		self.query: str = ""
+		self.method: str = "GET"
+		self.path: str = "/"
+		self.query: dict = {}
 		self.fragment = ""
 		self.version: str = "HTTP/1.1"
 		self.scheme: str = scheme
-		self.headers = CaseInsensitiveDict()
-		self.body = ""
+		self.headers: CaseInsensitiveDict = CaseInsensitiveDict()
+		self.body: str = ""
 
 		if url:
 			self.url = url
@@ -108,7 +108,8 @@ class HTTPRequest:
 			_url += f":{self.port}"
 		_url += self.path
 		if self.query:
-			_url += f"?{self.query}"
+			_query = "&".join([f"{key}={value}" for key, value in self.query.items()])
+			_url += f"?{_query}"
 		if self.fragment:
 			_url += f"#{self.fragment}"
 		return _url
@@ -195,7 +196,14 @@ class HTTPRequest:
 		Note:
 			The HTTP request spec specifies line breaks should be CRLF, so they will be converted to CRLF.
 		"""
-		raw = f"{self.method} {self.path} {self.version}\n"
+		_path = self.path
+		if self.query:
+			_query = "&".join([f"{key}={value}" for key, value in self.query.items()])
+			_path += f"?{_query}"
+		if self.fragment:
+			_path += f"#{self.fragment}"
+
+		raw = f"{self.method} {_path} {self.version}\n"
 		for header in self.headers:
 			raw += f"{header}: {self.headers[header]}\n"
 		raw += "\n"
