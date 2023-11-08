@@ -7,13 +7,13 @@ class HTTPRequest:
 	"""
 	Represents an HTTP request.
 	"""
-	
+
 	default_schemes_to_ports = {
 		"http": 80,
 		"https": 443
 	}
 
-	def __init__(self, _scheme: str = "https", url: str = None, raw: str = None, file: str = None):
+	def __init__(self, scheme: str = "https", url: str = None, raw: str = None, file: str = None):
 		"""
 		Args:
 			scheme (str, optional): The scheme of the request (e.g. "http", "https")
@@ -30,7 +30,7 @@ class HTTPRequest:
 		self.query: dict = {}
 		self.fragment = ""
 		self.version: str = "HTTP/1.1"
-		self.scheme: str = _scheme
+		self.scheme: str = scheme
 		self.headers: CaseInsensitiveDict = CaseInsensitiveDict()
 		self.body: str = ""
 
