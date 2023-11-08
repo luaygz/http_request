@@ -28,7 +28,7 @@ class HTTPRequest:
 		self.method: str = "GET"
 		self.path: str = "/"
 		self.query: dict = {}
-		self.fragment = ""
+		self.fragment: str = ""
 		self.version: str = "HTTP/1.1"
 		self.scheme: str = _scheme
 		self.headers: CaseInsensitiveDict = CaseInsensitiveDict()
