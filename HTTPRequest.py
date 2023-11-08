@@ -4,13 +4,16 @@ import requests_raw
 import json
 
 class HTTPRequest:
+	"""
+	Represents an HTTP request.
+	"""
+	
 	default_schemes_to_ports = {
-		"http": "80",
-		"https": "443"
+		"http": 80,
+		"https": 443
 	}
-	default_ports_to_schemes = {value: key for key, value in default_schemes_to_ports.items()} # reverse mapping
 
-	def __init__(self, scheme: str = "https", url: str = None, raw: str = None, file: str = None):
+	def __init__(self, _scheme: str = "https", url: str = None, raw: str = None, file: str = None):
 		"""
 		Args:
 			scheme (str, optional): The scheme of the request (e.g. "http", "https")
@@ -27,7 +30,7 @@ class HTTPRequest:
 		self.query: dict = {}
 		self.fragment = ""
 		self.version: str = "HTTP/1.1"
-		self.scheme: str = scheme
+		self.scheme: str = _scheme
 		self.headers: CaseInsensitiveDict = CaseInsensitiveDict()
 		self.body: str = ""
 
@@ -38,10 +41,9 @@ class HTTPRequest:
 		elif file:
 			with open(file, "r") as f:
 				self.parse(f.read())
-		
 
 	@property
-	def port(self) -> str:
+	def port(self) -> int:
 		"""
 		Constructed from the Host header, or the default port for the scheme if the Host header does not contain a port.
 		"""
@@ -53,10 +55,10 @@ class HTTPRequest:
 			return self.default_schemes_to_ports[self.scheme]
 	
 	@port.setter
-	def port(self, _port: str) -> None:
+	def port(self, _port: str | int) -> None:
 		"""
 		Args:
-			_port (str): The port to set the request to
+			_port (str | int): The port to set the request to
 		
 		Sets:
 			The port of the request and the Host header
@@ -66,10 +68,11 @@ class HTTPRequest:
 		"""
 		if not "Host" in self.headers:
 			raise ValueError("Host header is missing")
-		if _port in self.default_ports_to_schemes:
-			self.headers["Host"] = f"{self.host}" # port is default, so don't include it
+		# only add port if it's not the default port for the scheme (e.g. 80 for http, 443 for https)
+		if int(_port) != self.default_schemes_to_ports.get(self.scheme, None):
+			self.headers["Host"] = f"{self.host}:{str(_port)}"
 		else:
-			self.headers["Host"] = f"{self.host}:{_port}"
+			self.headers["Host"] = f"{self.host}" # port is default, so don't include it
 
 	@property
 	def host(self) -> str:
@@ -89,10 +92,11 @@ class HTTPRequest:
 		Note:
 			If the port is a default port for the scheme (e.g. 80 for http, 443 for https), the port will not be included in the Host header.
 		"""
-		if self.port in self.default_ports_to_schemes:
-			self.headers["Host"] = _host
+		# only add port if it's not the default port for the scheme (e.g. 80 for http, 443 for https)
+		if self.port != self.default_schemes_to_ports.get(self.scheme, None):
+			self.headers["Host"] = f"{_host}:{str(self.port)}"
 		else:
-			self.headers["Host"] = f"{_host}:{self.port}"
+			self.headers["Host"] = _host
 	
 	@property
 	def url(self) -> str:
@@ -105,7 +109,7 @@ class HTTPRequest:
 		_url = f"{self.scheme}://{self.host}"
 		# only add port if it's not the default port for the scheme (e.g. 80 for http, 443 for https)
 		if self.port != self.default_schemes_to_ports.get(self.scheme, None):
-			_url += f":{self.port}"
+			_url += f":{str(self.port)}"
 		_url += self.path
 		if self.query:
 			_query = "&".join([f"{key}={value}" for key, value in self.query.items()])
