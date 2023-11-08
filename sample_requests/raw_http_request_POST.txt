@@ -1,5 +1,5 @@
 POST /reflect.php HTTP/1.1
-Host: enauw44h0zsjs.x.pipedream.net
+Host: www.example.com
 Upgrade-Insecure-Requests: 1
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.5845.141 Safari/537.36
 Accept-Encoding: gzip, deflate
