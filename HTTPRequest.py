@@ -258,5 +258,8 @@ class HTTPRequest:
 		Note:
 			The Content-Length header will be set to the length of the body.
 		"""
+		if "Host" not in self.headers:
+			raise ValueError("Host header is missing")
+		
 		self.headers["Content-Length"] = len(self.body)
 		return requests_raw.raw(url=self.url, data=self.__str__().encode("utf-8"), **kwargs)
