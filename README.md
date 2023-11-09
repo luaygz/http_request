@@ -42,3 +42,7 @@ req.body = "just some text" # can also directly set req.body to a raw value if C
 
 
 
+## Content-Type Support
+
+Right now, JSON, form data, and setting raw body data is supported. Things like multi-part form data are not currently supported and must be handled manually via setting the raw body text.
+
