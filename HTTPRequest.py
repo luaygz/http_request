@@ -256,6 +256,7 @@ class HTTPRequest:
 			The response from `requests_raw.raw`
 
 		Note:
+			The HTTP spec requires a Host header, so a ValueError will be raised if the Host header is missing.
 			The Content-Length header will be set to the length of the body.
 		"""
 		if "Host" not in self.headers:
